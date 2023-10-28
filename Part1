@@ -1,37 +1,57 @@
-# What I have so far, not finished
 import pandas as pd
 
+# Datasets into DataFrames
+df1 = pd.read_csv('dataset1.csv')
+df2 = pd.read_csv('dataset2.csv', low_memory=False)
+df3 = pd.read_csv('dataset3.csv')
 
-def merge_datasets(dataset1_url, dataset2_url, dataset3_url, output_file):
-    chunk_size = 10000  # Adjust the chunk size as needed
+# Reset the index for each DataFrame
+df1 = df1.reset_index(drop=True)
+df2 = df2.reset_index(drop=True)
+df3 = df3.reset_index(drop=True)
 
-    dataset1_chunks = pd.read_csv(dataset1_url, chunksize=chunk_size, engine='python')
+# Rename columns for each dataset
+mapping_df1 = {
+    'Case Number': 'Case Number',
+    'ID': 'ID',
+    'Date': 'Date',
+    'Primary Type': 'Offense',
+    'Block': 'Address',
+    'Latitude': 'Latitude',
+    'Longitude': 'Longitude',
+}
 
-    dataset2_chunks = pd.read_csv(dataset2_url, chunksize=chunk_size, engine='python')
+mapping_df2 = {
+    'INCIDENT_NO': 'Case Number',
+    'INSTANCEID': 'ID',
+    'DATE_FROM': 'Date',
+    'OFFENSE': 'Offense',
+    'ADDRESS': 'Address',
+    'LATITUDE_X': 'Latitude',
+    'LONGITUTE_X': 'Longitude',
+}
 
-    dataset3_chunks = pd.read_csv(dataset3_url, chunksize=chunk_size, engine='python')
+mapping_df3 = {
+    'Case_Number': 'Case Number',
+    'Case_NumberAlt': 'ID',
+    'Occurred_Date': 'Date',
+    'Offense_Category': 'Offense',
+    'Address': 'Address',
+    'Latitude': 'Latitude',
+    'Longitude': 'Longitude',
+}
 
-    merged_chunks = []
+df1.rename(columns=mapping_df1, inplace=True)
+df2.rename(columns=mapping_df2, inplace=True)
+df3.rename(columns=mapping_df3, inplace=True)
 
-    for chunk1, chunk2, chunk3 in zip(dataset1_chunks, dataset2_chunks, dataset3_chunks):
-        # Replace problematic data with NaN
-        chunk2['INSTANCEID'] = chunk2['INSTANCEID'].apply(
-            lambda x: float('nan') if x == "IMPROPERLY DISCHARGING FIREARM AT/INTO HABITATION/SCHOOL" else x)
+# Concatenate the DataFrames
+merged_df = pd.concat([df1, df2, df3], ignore_index=True)
 
-        merged_chunk = pd.concat([chunk1, chunk2, chunk3], axis=0)
-        merged_chunks.append(merged_chunk)
+# Reset the index for the merged DataFrame
+merged_df.reset_index(drop=True, inplace=True)
 
-    merged_data = pd.concat(merged_chunks, axis=0)
-
-    merged_data.to_csv(output_file, index=False)
-
-if __name__ == "__main__":
-    dataset1_url = "C:\DSC 200\Crimes_-_2001_to_Present.csv"
-    dataset2_url = "C:\DSC 200\PDI__Police_Data_Initiative__Crime_Incidents.csv"
-    dataset3_url = "C:\DSC 200\PDI__Police_Data_Initiative__Crime_Incidents.csv"
-    output_file = "merged_dataset.csv"
-
-    merge_datasets(dataset1_url, dataset2_url, dataset3_url, output_file)
-
+# Merged dataset
+merged_df.to_csv('merged_dataset.csv', index=False)
 
 
