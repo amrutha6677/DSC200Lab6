@@ -166,7 +166,7 @@ def function2():
         f"Number of observations in the final CSV file: {df.shape[0]}\nNumber of features in the final CSV file: {df.shape[1]}")
 
     # create the new CSV file
-    df.to_csv("Data/censusIncomeData.csv")
+    df.to_csv("Data/censusIncomeData.csv", index=False)
 
 
 answer = int(input(
